@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #Requirements for Myiagi ultimate Backup
-## Proxmox Source Host, Proxmox Destination Host, Destination Public SSH Key on Source authorized-keys File, autostarting Proxmox Backupserver running on this PVE, zfs set com.sun:auto-snapshots=false on $ZFSTRGT, instaled checkzfs from https://github.com/bashclub/check-zfs-replication, check_mk Agent running on PVE
+## Proxmox Source Host with only daily Autosnapshots, Proxmox Destination Host, Destination Public SSH Key on Source authorized-keys File, autostarting Proxmox Backupserver running on this PVE, zfs set com.sun:auto-snapshots=false on $ZFSTRGT, instaled checkzfs from https://github.com/bashclub/check-zfs-replication, check_mk Agent running on PVE
 
 SOURCEHOST='192.168.0.241' # IP from Proxmox VE System to be backuped and replicated daily
 SOURCEHOSTNAME='PVE' #Hostname of Proxmox VE System to be backuped and replicated daily
@@ -77,5 +77,7 @@ scp  /tmp/90000_checkpbs  root@SOURCEHOST:/var/lib/check_mk_agent/spool
 
     ssh root@$PBSHOST proxmox-backup-manager verify backup
     ssh root@$SOURCEHOST pvesm set backup --disable 1
+    
+/etc/cron.daily/zfs-auto-snapshot
 
 #shutdown now
