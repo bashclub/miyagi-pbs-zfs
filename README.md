@@ -25,3 +25,12 @@ Verifying older Backups
 Protecting the PBS Backups with a ZFS Snapshot
 
 TURNING OFF THE MACHINE!!!
+
+
+ToDo:
+
+Prio1: Replace bashclub-zfs with bashclub-zsync:)
+Test Targets Tank if less than 75% free, otherwise report to Check_MK
+Test Disks after PBS Maintenance, before shutdown with SmartCTL Short Test and report to Check_MK
+Support multiple Sources
+Move Env Variables to Config File
