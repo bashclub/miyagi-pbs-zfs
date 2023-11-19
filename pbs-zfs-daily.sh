@@ -47,6 +47,7 @@ if [ "$DOW" == $MAINTDAY ]; then
 
     	ssh root@PBSHOST proxmox-backup-manager garbage-collection start $BACKUPSTORE
     	ssh root@PBSHOST proxmox-backup-manager prune-job run $PRUNEJOB
+    	ssh root@$PBSHOST proxmox-backup-manager verify backup
 
 else
     echo "Today no Maintenance"
@@ -76,9 +77,8 @@ scp  /tmp/90000_checkpbs  root@SOURCEHOST:/var/lib/check_mk_agent/spool
 
 ###
 
-    ssh root@$PBSHOST proxmox-backup-manager verify backup
     ssh root@$SOURCEHOST pvesm set backup --disable 1
-    
+
 /etc/cron.daily/zfs-auto-snapshot
 
 #doing updates without regeret
