@@ -16,6 +16,7 @@ ZPOOLDST=rpool #This pulling Machines Pool/Tank
 PBSHOST='192.168.0.171' #IP from your Proxmox Backupserver
 BACKUPSTORE=backup #Datastorename configured in your  Proxmox VE System to be backuped and replicated daily
 BACKUPEXCLUDE='103,104,109,110' #Machines to be excluded from Proxmox Backup
+PRUNEJOB='s-88c45b79-77a4' #proxmox-backup-manager prune-job list
 
 SSHPORT='22' #SSH Port, usually default 22 internally
 SCRIPTPATH=/usr/bin #Location of bashclub-zfs Tool - https://raw.githubusercontent.com/bashclub/bashclub-zfs-push-pull/master/bashclub-zfs
@@ -44,8 +45,8 @@ scp /tmp/90000_checkzfs $SOURCEHOST:/var/lib/check_mk_agent/spool
 if [ "$DOW" == $MAINTDAY ]; then
     echo "MAINTENANCE"
 
-    #ssh root@PBSHOST proxmox-backup-manager garbage-collection start (wrong command)
-    
+    	ssh root@PBSHOST proxmox-backup-manager garbage-collection start $BACKUPSTORE
+    	ssh root@PBSHOST proxmox-backup-manager prune-job run $PRUNEJOB
 
 else
     echo "Today no Maintenance"
@@ -79,5 +80,9 @@ scp  /tmp/90000_checkpbs  root@SOURCEHOST:/var/lib/check_mk_agent/spool
     ssh root@$SOURCEHOST pvesm set backup --disable 1
     
 /etc/cron.daily/zfs-auto-snapshot
+
+#doing updates without regeret
+
+apt dist-upgrade -y
 
 #shutdown now
