@@ -16,7 +16,7 @@ ZPOOLDST=rpool #This pulling Machines Pool/Tank
 PBSHOST='192.168.0.171' #IP from your Proxmox Backupserver
 BACKUPSTORE=backup #Datastorename configured in your  Proxmox VE System to be backuped and replicated daily
 BACKUPEXCLUDE='103,104,109,110' #Machines to be excluded from Proxmox Backup
-PRUNEJOB='s-88c45b79-77a4' #proxmox-backup-manager prune-job list
+PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
 
 SSHPORT='22' #SSH Port, usually default 22 internally
 SCRIPTPATH=/usr/bin #Location of bashclub-zfs Tool - https://raw.githubusercontent.com/bashclub/bashclub-zfs-push-pull/master/bashclub-zfs
