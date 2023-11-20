@@ -1,10 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
 #Requirements for Myiagi ultimate Backup
 ## Proxmox Source Host with only daily Autosnapshots, Proxmox Destination Host, Destination Public SSH Key on Source authorized-keys File, autostarting Proxmox Backupserver running on this PVE, zfs set com.sun:auto-snapshots=false on $ZFSTRGT, instaled checkzfs from https://github.com/bashclub/check-zfs-replication, check_mk Agent running on PVE
 
 SOURCEHOST='192.168.0.241' # IP from Proxmox VE System to be backuped and replicated daily
-SOURCEHOSTNAME='PVE' #Hostname of Proxmox VE System to be backuped and replicated daily
+SOURCEHOSTNAME='pve' #Hostname of Proxmox VE System to be backuped and replicated daily
 ZFSKEEP='10' # How many Snapshots to be kept, suggested 10 Days
 
 ZFSROOT='rpool/data' #First Dataset/Datastoresourcepath from Proxmox VE System to be backuped and replicated daily
@@ -14,15 +14,15 @@ ZPOOLDST=rpool #This pulling Machines Pool/Tank
 
 
 PBSHOST='192.168.0.171' #IP from your Proxmox Backupserver
-BACKUPSTORE=backup #Datastorename configured in your  Proxmox VE System to be backuped and replicated daily
-BACKUPEXCLUDE='103,104,109,110' #Machines to be excluded from Proxmox Backup
+BACKUPSTORE=backup241 #Datastorename configured in your  Proxmox VE System to be backuped and replicated daily
+BACKUPSTOREPBS=backup #Datastorename configured in your Proxmox Backup Server 
+BACKUPEXCLUDE='999' #Machines to be excluded from Proxmox Backup
 PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
 
 SSHPORT='22' #SSH Port, usually default 22 internally
 SCRIPTPATH=/usr/bin #Location of bashclub-zfs Tool - https://raw.githubusercontent.com/bashclub/bashclub-zfs-push-pull/master/bashclub-zfs
 
-
-MAINTDAY=7
+MAINTDAY=0
 
 SOURCEALL=$(ssh -p$SSHPORT root@$SOURCEHOST 'for src in $(zfs list -H -o name |grep '"$ZFSROOT"'/|grep -v alt|grep -v state|grep -v disk-9); do echo ${src##*/}; done') #determines Source Datasets without 'alt, state and disk-9' in Name - Those are typlically not replicated
 echo ''
@@ -30,7 +30,7 @@ echo Pulling Replicas from $SOURCEHOST following Datasets/ZVOLS $SOURCEALL
 echo ''
 for DATA in $SOURCEALL
 do
-	$SCRIPTPATH/bashclub-zfs -I -R -p $SSHPORT -k $ZFSKEEP -v $SOURCEHOST:$ZFSROOT/$DATA $ZFSTRGT #for debugging add an echo at the Beginning of this line
+	$SCRIPTPATH/bashclub-zfs -p $SSHPORT -k $ZFSKEEP -v $SOURCEHOST:$ZFSROOT/$DATA $ZFSTRGT #for debugging add an echo at the Beginning of this line
 done
 ###
 
@@ -42,12 +42,14 @@ scp /tmp/90000_checkzfs $SOURCEHOST:/var/lib/check_mk_agent/spool
 
 ###
 
-if [ "$DOW" == $MAINTDAY ]; then
-    echo "MAINTENANCE"
 
-    	ssh root@PBSHOST proxmox-backup-manager garbage-collection start $BACKUPSTORE
-    	ssh root@PBSHOST proxmox-backup-manager prune-job run $PRUNEJOB
-    	ssh root@$PBSHOST proxmox-backup-manager verify backup
+   if [ $(date +%u) == $MAINTDAY ]; then 
+	echo "MAINTENANCE"
+
+    	ssh root@$PBSHOST proxmox-backup-manager garbage-collection start $BACKUPSTOREPBS
+    	ssh root@$PBSHOST proxmox-backup-manager prune-job run $PRUNEJOB
+	#optional delete all zfs-auto-snapshots   
+ 	ssh root@$PBSHOST proxmox-backup-manager verify backup
 
 else
     echo "Today no Maintenance"
@@ -72,14 +74,13 @@ else
 
 fi
 
-scp  /tmp/90000_checkpbs  root@SOURCEHOST:/var/lib/check_mk_agent/spool
-
+scp  /tmp/90000_checkpbs  root@$SOURCEHOST:/var/lib/check_mk_agent/spool
 
 ###
 
-    ssh root@$SOURCEHOST pvesm set backup --disable 1
+    ssh root@$SOURCEHOST pvesm set $BACKUPSTORE --disable 1
 
-/etc/cron.daily/zfs-auto-snapshot
+/etc/cron.daily/zfs-auto-snapshot #protecting all  Datasets/ZVOLs except the Replicas with daily Snaps
 
 #doing updates without regeret
 
