@@ -7,6 +7,7 @@ SOURCEHOST='192.168.1.20' # IP from Proxmox VE System to be backuped and replica
 SOURCEHOSTNAME='pve20' #Hostname of Proxmox VE System to be backuped and replicated daily
 
 ZFSROOT='rpool/data' #First Dataset/Datastoresourcepath from Proxmox VE System to be backuped and replicated daily
+ZFSSECOND='rpool-hdd/data' #Optional second Dataset
 ZFSTRGT='rpool/repl' #This pulling Machines Target ZFS Sourcepath
 ZPOOLSRC=rpool #First Pool/Tank from Proxmox VE System to be backuped and replicated daily
 ZPOOLDST=rpool #This pulling Machines Pool/Tank
@@ -42,10 +43,9 @@ echo "zfs_auto_snapshot_label=$ZPUSHLABEL" >> /etc/bashclub/$SOURCEHOST.conf
 /usr/bin/bashclub-zsync -d -c /etc/bashclub/$SOURCEHOST.conf
 
 # So one Day has 1440 Minutes, so we go condition Yellow on 1500
-/usr/local/bin/checkzfs --source $SOURCEHOST --replicafilter $ZFSTRGT/ --filter $ZFSROOT/ --threshold 1500,2000 --output checkmk --prefix pullrepl > /tmp/cmk_tmp.out && ( echo "<<<local>>>" ; cat /tmp/cmk_tmp.out ) > /tmp/90000_checkzfs
+/usr/local/bin/checkzfs --source $SOURCEHOST --replicafilter $ZFSTRGT/ --filter "$ZFSROOT/|$ZFSSECOND/" --threshold 1500,2000 --output checkmk --prefix pullrepl > /tmp/cmk_tmp.out && ( echo "<<<local>>>" ; cat /tmp/cmk_tmp.out ) > /tmp/90000_checkzfs
 
 scp /tmp/90000_checkzfs $SOURCEHOST:/var/lib/check_mk_agent/spool
-
 
 ###
 
@@ -90,6 +90,9 @@ scp  /tmp/90000_checkpbs  root@$SOURCEHOST:/var/lib/check_mk_agent/spool
 /etc/cron.daily/zfs-auto-snapshot #protecting all  Datasets/ZVOLs except the Replicas with daily Snaps
 
 #doing updates without regeret
+
+
+#/root/02pull32nas ##PVE32 NAS Replika mit Report auf pve32
 
 apt dist-upgrade -y
 
