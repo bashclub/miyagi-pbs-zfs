@@ -30,7 +30,7 @@ MAINTDAY=0
 
 # ssh root@$SOURCEHOST zfs set $ZPUSHTAG=subvols $ZFSROOT
 # Schleife für Excludes
-echo "target=rpool/repl" > /etc/bashclub/$SOURCEHOST.conf
+echo "target=$ZFSTRGT" > /etc/bashclub/$SOURCEHOST.conf
 echo "source=root@$SOURCEHOST" >> /etc/bashclub/$SOURCEHOST.conf
 echo "sshport=$SSHPORT" >> /etc/bashclub/$SOURCEHOST.conf
 echo "tag=$ZPUSHTAG" >> /etc/bashclub/$SOURCEHOST.conf
