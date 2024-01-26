@@ -89,9 +89,6 @@ scp  /tmp/90000_checkpbs  root@$SOURCEHOST:/var/lib/check_mk_agent/spool
 
 #doing updates without regeret
 
-
-#/root/02pull32nas ##PVE32 NAS Replika mit Report auf pve32
-
 apt dist-upgrade -y
 
 #shutdown now
