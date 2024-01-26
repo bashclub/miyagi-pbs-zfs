@@ -3,28 +3,27 @@
 #Requirements for Myiagi ultimate Backup
 ## Proxmox Source Host with only daily Autosnapshots, Proxmox Destination Host, Destination Public SSH Key on Source authorized-keys File, autostarting Proxmox Backupserver running on this PVE, zfs set com.sun:auto-snapshots=false on $ZFSTRGT, instaled checkzfs from https://github.com/bashclub/check-zfs-replication, check_mk Agent running on PVE
 
-SOURCEHOST='192.168.1.20' # IP from Proxmox VE System to be backuped and replicated daily
-SOURCEHOSTNAME='pve20' #Hostname of Proxmox VE System to be backuped and replicated daily
+SOURCEHOST='192.168.50.200' # IP from Proxmox VE System to be backuped and replicated daily
+SOURCEHOSTNAME='pve3' #Hostname of Proxmox VE System to be backuped and replicated daily
 
 ZFSROOT='rpool/data' #First Dataset/Datastoresourcepath from Proxmox VE System to be backuped and replicated daily
 ZFSSECOND='rpool-hdd/data' #Optional second Dataset
-ZFSTRGT='rpool/repl' #This pulling Machines Target ZFS Sourcepath
+ZFSTRGT='rpool-ssd1/200' #This pulling Machines Target ZFS Sourcepath
 ZPOOLSRC=rpool #First Pool/Tank from Proxmox VE System to be backuped and replicated daily
 ZPOOLDST=rpool #This pulling Machines Pool/Tank
 ZPUSHTAG=bashclub:zsync
 ZPUSHMINKEEP=3
 ZPUSHKEEP=14
-ZPUSHLABEL=zsync-30
-ZPUSHFILTER="\"monthly|daily\"" #zpushlabel kommt automatisch mit
+ZPUSHLABEL=zsync-rz
+ZPUSHFILTER="\"rz_pull|monthly|daily\"" #zpushlabel kommt automatisch mit
 
-PBSHOST='192.168.1.16' #IP from your Proxmox Backupserver
+PBSHOST='192.168.50.199' #IP from your Proxmox Backupserver
 BACKUPSTORE=backup #Datastorename configured in your  Proxmox VE System to be backuped and replicated daily
 BACKUPSTOREPBS=backup #Datastorename configured in your Proxmox Backup Server 
-BACKUPEXCLUDE='999' #Machines to be excluded from Proxmox Backup
+BACKUPEXCLUDE='124,3021,3022,3023,3251,3252,3253,3254' #Machines to be excluded from Proxmox Backup
 PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
 
 SSHPORT='22' #SSH Port, usually default 22 internally
-SCRIPTPATH=/usr/bin #Location of bashclub-zfs Tool - https://raw.githubusercontent.com/bashclub/bashclub-zfs-push-pull/master/bashclub-zfs
 
 MAINTDAY=0
 
@@ -39,16 +38,15 @@ echo "min_keep=$ZPUSHMINKEEP" >> /etc/bashclub/$SOURCEHOST.conf
 echo "zfs_auto_snapshot_keep=$ZPUSHKEEP" >> /etc/bashclub/$SOURCEHOST.conf
 echo "zfs_auto_snapshot_label=$ZPUSHLABEL" >> /etc/bashclub/$SOURCEHOST.conf
 
-
-/usr/bin/bashclub-zsync -d -c /etc/bashclub/$SOURCEHOST.conf
+echo /usr/bin/bashclub-zsync -d -c /etc/bashclub/$SOURCEHOST.conf
 
 # So one Day has 1440 Minutes, so we go condition Yellow on 1500
-/usr/local/bin/checkzfs --source $SOURCEHOST --replicafilter $ZFSTRGT/ --filter "$ZFSROOT/|$ZFSSECOND/" --threshold 1500,2000 --output checkmk --prefix pullrepl > /tmp/cmk_tmp.out && ( echo "<<<local>>>" ; cat /tmp/cmk_tmp.out ) > /tmp/90000_checkzfs
+/usr/local/bin/checkzfs --source $SOURCEHOST --replicafilter "$ZFSTRGT/" --filter "#$ZFSROOT/|#$ZFSSECOND/" --threshold 1500,2000 --output checkmk --prefix pull-$(hostname)> /tmp/cmk_tmp.out && ( echo "<<<local>>>" ; cat /tmp/cmk_tmp.out ) > /tmp/90000_checkzfs
 
 scp /tmp/90000_checkzfs $SOURCEHOST:/var/lib/check_mk_agent/spool
 
 ###
-
+exit
 
    if [ $(date +%u) == $MAINTDAY ]; then 
 	echo "MAINTENANCE"
