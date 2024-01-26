@@ -38,7 +38,7 @@ echo "min_keep=$ZPUSHMINKEEP" >> /etc/bashclub/$SOURCEHOST.conf
 echo "zfs_auto_snapshot_keep=$ZPUSHKEEP" >> /etc/bashclub/$SOURCEHOST.conf
 echo "zfs_auto_snapshot_label=$ZPUSHLABEL" >> /etc/bashclub/$SOURCEHOST.conf
 
-echo /usr/bin/bashclub-zsync -d -c /etc/bashclub/$SOURCEHOST.conf
+/usr/bin/bashclub-zsync -d -c /etc/bashclub/$SOURCEHOST.conf
 
 # So one Day has 1440 Minutes, so we go condition Yellow on 1500
 /usr/local/bin/checkzfs --source $SOURCEHOST --replicafilter "$ZFSTRGT/" --filter "#$ZFSROOT/|#$ZFSSECOND/" --threshold 1500,2000 --output checkmk --prefix pull-$(hostname)> /tmp/cmk_tmp.out && ( echo "<<<local>>>" ; cat /tmp/cmk_tmp.out ) > /tmp/90000_checkzfs
@@ -46,7 +46,7 @@ echo /usr/bin/bashclub-zsync -d -c /etc/bashclub/$SOURCEHOST.conf
 scp /tmp/90000_checkzfs $SOURCEHOST:/var/lib/check_mk_agent/spool
 
 ###
-exit
+
 
    if [ $(date +%u) == $MAINTDAY ]; then 
 	echo "MAINTENANCE"
