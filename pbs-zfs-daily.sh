@@ -36,6 +36,10 @@ SSHPORT='22' #SSH Port, usually default 22 internally
 
 MAINTDAY=0
 
+#Disable ZFS Auto Snapshot on Destination
+
+zfs set com.sun:auto-snapshot=false $ZFSTRGT
+
 #Mark Source for full Backup with Zsync
 
 ssh root@$SOURCEHOST zfs set $ZPUSHTAG=all $ZFSROOT
