@@ -1,5 +1,7 @@
 #!/bin/bash
 
+apt update
+
 #Requirements for Myiagi ultimate Backup
 ## Proxmox Source Host with only daily Autosnapshots, Proxmox Destination Host, Destination Public SSH Key on Source authorized-keys File, autostarting Proxmox Backupserver running on this PVE, zfs set com.sun:auto-snapshots=false on $ZFSTRGT, instaled checkzfs from https://github.com/bashclub/check-zfs-replication, check_mk Agent running on PVE
 
@@ -37,6 +39,8 @@ SSHPORT='22' #SSH Port, usually default 22 internally
 MAINTDAY=0
 
 #Disable ZFS Auto Snapshot on Destination
+
+# ssh root@$SOURCEHOST apt install zfs-auto-snapshot #uncomment if you did not use our Postinstaller from github.com/bashclub and modify /etc/cron.xxx zfs-auto-snapshot Scripts, especially monthly rec. 12 to 3 Month
 
 zfs set com.sun:auto-snapshot=false $ZFSTRGT
 
