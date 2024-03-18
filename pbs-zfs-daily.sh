@@ -71,8 +71,9 @@ scp /tmp/90000_checkzfs $SOURCEHOST:/var/lib/check_mk_agent/spool/90000_checkzfs
    if [ $(date +%u) == $MAINTDAY ]; then 
 	echo "MAINTENANCE"
 
-    	ssh root@$PBSHOST proxmox-backup-manager garbage-collection start $BACKUPSTOREPBS
     	ssh root@$PBSHOST proxmox-backup-manager prune-job run $PRUNEJOB
+        ssh root@$PBSHOST proxmox-backup-manager garbage-collection start $BACKUPSTOREPBS
+
 	#optional delete all zfs-auto-snapshots   
  	ssh root@$PBSHOST proxmox-backup-manager verify backup
 
