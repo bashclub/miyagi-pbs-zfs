@@ -1,0 +1,28 @@
+SOURCEHOST='192.168.50.200' # IP from Proxmox VE System to be backuped and replicated daily
+SOURCEHOSTNAME='pve3' #Hostname of Proxmox VE System to be backuped and replicated daily
+
+ZFSROOT='rpool/data' #First Dataset/Datastoresourcepath from Proxmox VE System to be backuped and replicated daily
+ZFSSECOND='' #Optional second Dataset
+ZFSTRGT='rpool-ssd1/200' #This pulling Machines Target ZFS Sourcepath
+ZPOOLSRC=rpool #First Pool/Tank from Proxmox VE System to be backuped and replicated daily
+ZPOOLDST=rpool #This pulling Machines Pool/Tank
+ZPUSHTAG=bashclub:zsync-198-ssd
+ZPUSHMINKEEP=3
+ZPUSHKEEP=14
+ZPUSHLABEL=zsync-rz
+ZPUSHFILTER="" #zpushlabel kommt automatisch mit
+
+PBSHOST='192.168.50.199' #IP from your Proxmox Backupserver
+BACKUPSTORE=backup #Datastorename configured in your  Proxmox VE System to be backuped and replicated daily
+BACKUPSTOREPBS=backup #Datastorename configured in your Proxmox Backup Server 
+BACKUPEXCLUDE='124,3021,3022,3023,3251,3252,3253,3254' #Machines to be excluded from Proxmox Backup
+REPLEXCLUDE=$BACKUPEXCLUDE
+PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
+
+SSHPORT='22' #SSH Port, usually default 22 internally
+
+BACKUPSERVER=no
+
+MAINTDAY=7
+
+SHUTDOWN=no
