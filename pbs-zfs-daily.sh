@@ -15,9 +15,8 @@ done
 
 source $configfile
 
+ssh root@$SOURCEHOST zfs set $ZPUSHTAG=subvols $ZFSROOT
 
-# ssh root@$SOURCEHOST zfs set $ZPUSHTAG=subvols $ZFSROOT
-# Schleife für Excludes
 echo "target=$ZFSTRGT" > /etc/bashclub/$SOURCEHOST.conf
 echo "source=root@$SOURCEHOST" >> /etc/bashclub/$SOURCEHOST.conf
 echo "sshport=$SSHPORT" >> /etc/bashclub/$SOURCEHOST.conf
