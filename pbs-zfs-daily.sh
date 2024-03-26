@@ -13,7 +13,7 @@ while getopts "c:" arg; do
 esac
 done
 
-source $PWD/$configfile
+source $configfile
 
 
 # ssh root@$SOURCEHOST zfs set $ZPUSHTAG=subvols $ZFSROOT
