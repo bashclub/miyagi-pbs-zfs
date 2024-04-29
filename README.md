@@ -3,6 +3,8 @@ Secure Proxmox PVE with Proxmox Backup Server PBS and ZFS Pull Replication with 
 Optimize Processes without colliding Replications, Backups, Monitorings or Scrubs
 Save lot of Money with less performant Hardware
 
+Start it with bash miyagi-pbs-zfs -c configfile
+
 There are german payed Lessons here:
 14. + 16.05.2024 (13-17h) - Replikationen und Backups Trojanersicher (V2) - on https://cloudisevil.com
 
