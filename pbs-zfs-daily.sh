@@ -33,12 +33,16 @@ echo "zfs_auto_snapshot_label=$ZPUSHLABEL" >> /etc/bashclub/$SOURCEHOST.conf
 
 scp /tmp/90000_checkzfs $SOURCEHOST:/var/lib/check_mk_agent/spool/90000_checkzfs_$(hostname)_$ZPOOLSRC
 
-if [ "$BACKUPSERVER" == "no" ]; then exit
+if [[ "$BACKUPSERVER" == "no" ]]
+then 
+echo No Backup configured in this Run
+exit
 fi
+
+PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
 
 
 ###
-PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
 
    if [ $(date +%u) == $MAINTDAY ]; then 
 	echo "MAINTENANCE"
@@ -47,7 +51,7 @@ PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format js
     	ssh root@$PBSHOST proxmox-backup-manager garbage-collection start $BACKUPSTOREPBS
 
 else
-    echo "Today no Maintenance"
+    echo "Today no Maintenance" 
 fi
 
     ssh root@$SOURCEHOST zpool scrub -s $ZPOOLSRC
@@ -57,7 +61,7 @@ fi
 
 ### one Day is 86400 Seconds, so we going Condition grey if no new Status File will be pushed
 
-ssh root@$SOURCEHOST vzdump --node $SOURCEHOSTNAME --storage $BACKUPSTORE --exclude  $BACKUPEXCLUDE --mode snapshot --all 1 --notes-template '{{guestname}}' 
+echo ssh root@$SOURCEHOST vzdump --node $SOURCEHOSTNAME --storage $BACKUPSTORE --exclude  $BACKUPEXCLUDE --mode snapshot --all 1 --notes-template '{{guestname}}' 
 
 if [ $? -eq 0 ]; then
     echo command returned 0 is good
@@ -73,7 +77,7 @@ scp  /tmp/90000_checkpbs  root@$SOURCEHOST:/var/lib/check_mk_agent/spool
 ###
 
     ssh root@$SOURCEHOST pvesm set $BACKUPSTORE --disable 1
-    if [ $(date +%u) == $MAINTDAY ]; then ssh root@$PBSHOST proxmox-backup-manager verify backup
+    if [ $(date +%u) == $MAINTDAY ]; then ssh root@$PBSHOST proxmox-backup-manager verify backup; fi
 
 /etc/cron.daily/zfs-auto-snapshot #protecting all  Datasets/ZVOLs except the Replicas with daily Snaps
 
@@ -81,7 +85,11 @@ scp  /tmp/90000_checkpbs  root@$SOURCEHOST:/var/lib/check_mk_agent/spool
 
 
 apt dist-upgrade -y
+ssh $PBSHOST apt dist-upgrade -y
 
-
-if [ "$SHUTDOWN" == "yes" ]; then shutdown now
+if [[ "$SHUTDOWN" == "yes" ]]
+then
+	shutdown now
+else 
+	echo no Shutdown configured - Next run has to be set in crontab!
 fi
