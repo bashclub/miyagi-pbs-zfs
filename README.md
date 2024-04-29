@@ -14,6 +14,24 @@ What if our Backup/Replicaserver is turned off most the time, nobody can attack 
 
 Consider not using a Gateway, use Routes!
 
+Prerequisites
+
+Proxmox with ZFS on Host to Backup/Replicate -  we recommend check_mk Agent for automaticly added Tests
+Proxmox with ZFS on Target Machine - it´s WOL MAC Address
+Proxmox Backup Server as a VM oder better PCT on Target machine
+Your contet of your Public Key of the Target Host .ssh/id_rsa.pub added to
+  Host to Backup .ssh/authorized_keys
+  Proxmox Backup Server on Target Host .ssh/authorized_keys
+ssh one from your Target Host to Source Host and PBS to confirm Host Key with a yes
+
+At all Proxmox 'apt install zfs-auto-snapshot -y'
+Target Hosts needs the following tools to be installed
+
+  https://github.com/bashclub/zsync
+  https://github.com/bashclub/check-zfs-replication
+
+Any Host waking up the Target Host or a daily Cronjob
+
 What we do...
 
 Turning on the Computer with a @reboot Cron
