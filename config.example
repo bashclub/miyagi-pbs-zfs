@@ -17,7 +17,6 @@ BACKUPSTORE=backup #Datastorename configured in your  Proxmox VE System to be ba
 BACKUPSTOREPBS=backup #Datastorename configured in your Proxmox Backup Server 
 BACKUPEXCLUDE='124,3021,3022,3023,3251,3252,3253,3254' #Machines to be excluded from Proxmox Backup
 REPLEXCLUDE=$BACKUPEXCLUDE
-PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
 
 SSHPORT='22' #SSH Port, usually default 22 internally
 
