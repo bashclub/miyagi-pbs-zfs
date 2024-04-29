@@ -3,6 +3,11 @@ Secure Proxmox PVE with Proxmox Backup Server PBS and ZFS Pull Replication with 
 Optimize Processes without colliding Replications, Backups, Monitorings or Scrubs
 Save lot of Money with less performant Hardware
 
+There are german payed Lessons here:
+14. + 16.05.2024 (13-17h) - Replikationen und Backups Trojanersicher (V2) - on https://cloudisevil.com
+
+You also can searh vor sysops.tv or zfs. rocks on YouTube #miyagi - an english Tutorial will follow!
+
 What it does
 Miyagi said, best defense, no be there
 
@@ -19,6 +24,7 @@ Prerequisites
 Proxmox with ZFS on Host to Backup/Replicate -  we recommend check_mk Agent for automaticly added Tests
 Proxmox with ZFS on Target Machine - it´s WOL MAC Address
 Proxmox Backup Server as a VM oder better PCT on Target machine
+Proxmox Backup Server Datastore has to be Setup on Source
 Your contet of your Public Key of the Target Host .ssh/id_rsa.pub added to
   Host to Backup .ssh/authorized_keys
   Proxmox Backup Server on Target Host .ssh/authorized_keys
