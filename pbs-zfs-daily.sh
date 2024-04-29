@@ -1,8 +1,6 @@
 #!/bin/bash
 
-#Requirements for Myiagi ultimate Backup
-## Proxmox Source Host with only daily Autosnapshots, Proxmox Destination Host, Destination Public SSH Key on Source authorized-keys File, autostarting Proxmox Backupserver running on this PVE, zfs set com.sun:auto-snapshots=false on $ZFSTRGT, instaled checkzfs from https://github.com/bashclub/check-zfs-replication, check_mk Agent running on PVE
-
+#Requirements for Myiagi ultimate Backup found in README! Always use a Config File!
 
 while getopts "c:" arg; do
   case $arg in
