@@ -38,6 +38,7 @@ fi
 
 
 ###
+PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
 
    if [ $(date +%u) == $MAINTDAY ]; then 
 	echo "MAINTENANCE"
