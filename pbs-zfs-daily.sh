@@ -14,6 +14,7 @@ done
 source $configfile
 
 ssh root@$SOURCEHOST zfs set $ZPUSHTAG=all $ZFSROOT
+ssh root@$SOURCEHOST zfs set $ZPUSHTAG=all $ZFSSECOND
 ssh root@$SOURCEHOST zfs set $ZPUSHTAG=all rpool/pveconf #you have to use our postinstaller on source
 
 echo "target=$ZFSTRGT" > /etc/bashclub/$SOURCEHOST.conf
