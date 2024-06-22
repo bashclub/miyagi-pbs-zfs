@@ -4,6 +4,7 @@ SSHPORT='22' #SSH Port, usually default 22 internally
 BACKUPSERVER=no #use yes for triggering Proxmox Backup to Store
 MAINTDAY=7 #1 Monday to 7 Sunday, dont start your System too late
 SHUTDOWN=no #No be there anymore
+UPDATES=yes #Do PVE and PBS Updates after run
 
 SOURCEHOST='192.168.50.200' # IP from Proxmox VE System to be backuped and replicated daily
 SOURCEHOSTNAME='pve3' #Hostname of Proxmox VE System to be backuped and replicated daily
