@@ -84,8 +84,15 @@ scp  /tmp/90000_checkpbs  root@$SOURCEHOST:/var/lib/check_mk_agent/spool
 #doing updates without regeret
 
 
-apt dist-upgrade -y
-ssh $PBSHOST apt dist-upgrade -y
+if [[ "$UPDATES" == "yes" ]]
+then
+	apt dist-upgrade -y
+	ssh $PBSHOST apt dist-upgrade -y
+ else
+ 	echo no Updates configured - Consider updating more often!
+
+fi
+
 
 if [[ "$SHUTDOWN" == "yes" ]]
 then
