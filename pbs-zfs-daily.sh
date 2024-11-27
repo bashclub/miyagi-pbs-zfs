@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sleep 30
+
 #Requirements for Myiagi ultimate Backup found in README! Always use a Config File!
 
 while getopts "c:" arg; do
@@ -12,6 +14,8 @@ esac
 done
 
 source $configfile
+
+SOURCEHOSTNAME=$(ssh $SOURCEHOST hostname)
 
 ssh root@$SOURCEHOST zfs set $ZPUSHTAG=all $ZFSROOT
 ssh root@$SOURCEHOST zfs set $ZPUSHTAG=all $ZFSSECOND
@@ -34,6 +38,21 @@ CHECKZFS=$(which checkzfs)
 $CHECKZFS --source $SOURCEHOST --replicafilter "$ZFSTRGT/" --filter "#$ZFSROOT/|#$ZFSSECOND/" --threshold 1500,2000 --output checkmk --prefix pull-$(hostname):$ZPUSHTAG> /tmp/cmk_tmp.out && ( echo "<<<local>>>" ; cat /tmp/cmk_tmp.out ) > /tmp/90000_checkzfs
 
 scp /tmp/90000_checkzfs $SOURCEHOST:/var/lib/check_mk_agent/spool/90000_checkzfs_$(hostname)_$ZPOOLSRC
+
+echo "Don´t forget to add a Host in CMK named: miyagi-$SOURCEHOSTNAME-$(hostname) without Agent, Piggyback enabled!"
+echo "<<<<miyagi-$SOURCEHOSTNAME-$(hostname)>>>>" > 90000_miyagi-$SOURCEHOSTNAME-$(hostname)
+/usr/bin/check_mk_agent >> 90000_miyagi-$SOURCEHOSTNAME-$(hostname)
+echo "<<<<>>>>" >> 90000_miyagi-$SOURCEHOSTNAME-$(hostname)
+scp  ./90000_miyagi-$SOURCEHOSTNAME-$(hostname)  $SOURCEHOST:/var/lib/check_mk_agent/spool
+
+if [[ "$UPDATES" == "yes" ]]
+then
+	apt dist-upgrade -y
+ else
+ 	echo no Updates configured - Consider updating more often!
+
+fi
+
 
 if [[ "$BACKUPSERVER" == "no" ]]
 then 
@@ -76,6 +95,7 @@ fi
 
 scp  /tmp/90000_checkpbs  root@$SOURCEHOST:/var/lib/check_mk_agent/spool
 
+
 ###
 
     ssh root@$SOURCEHOST pvesm set $BACKUPSTORE --disable 1
@@ -88,7 +108,6 @@ scp  /tmp/90000_checkpbs  root@$SOURCEHOST:/var/lib/check_mk_agent/spool
 
 if [[ "$UPDATES" == "yes" ]]
 then
-	apt dist-upgrade -y
 	ssh $PBSHOST apt dist-upgrade -y
  else
  	echo no Updates configured - Consider updating more often!
