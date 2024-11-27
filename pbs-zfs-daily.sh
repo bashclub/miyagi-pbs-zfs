@@ -47,7 +47,7 @@ scp  ./90000_miyagi-$SOURCEHOSTNAME-$(hostname)  $SOURCEHOST:/var/lib/check_mk_a
 
 if [[ "$UPDATES" == "yes" ]]
 then
-	apt dist-upgrade -y
+	apt update && apt dist-upgrade -y
  else
  	echo no Updates configured - Consider updating more often!
 
@@ -108,7 +108,7 @@ scp  /tmp/90000_checkpbs  root@$SOURCEHOST:/var/lib/check_mk_agent/spool
 
 if [[ "$UPDATES" == "yes" ]]
 then
-	ssh $PBSHOST apt dist-upgrade -y
+	ssh $PBSHOST 	apt update && apt dist-upgrade -y
  else
  	echo no Updates configured - Consider updating more often!
 
