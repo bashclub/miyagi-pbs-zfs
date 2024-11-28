@@ -80,7 +80,7 @@ fi
 
 if [[ "$BACKUPSERVER" == "no" ]]; then
       echo No Backup configured in this Run
-      [[ "$SHUTDOWN" == "yes" ]] && exit
+      [[ "$SHUTDOWN" == "no" ]] && exit
 fi
 
 PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
