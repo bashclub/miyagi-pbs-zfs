@@ -1,6 +1,7 @@
 #!/bin/bash
 
-sleep 30
+echo "Sleeping for one Minute to be interruped if necessary"
+sleep 60
 
 #Requirements for Myiagi ultimate Backup found in README! Always use a Config File!
 
@@ -14,6 +15,10 @@ esac
 done
 
 source $configfile
+
+# bashclub-zsync Part
+
+echo "Configuring and runnging bashclub-zsyncs Config in /etc/bashclub/$SOURCEHOST.conf"
 
 SOURCEHOSTNAME=$(ssh $SOURCEHOST hostname)
 
@@ -32,32 +37,50 @@ echo "zfs_auto_snapshot_label=$ZPUSHLABEL" >> /etc/bashclub/$SOURCEHOST.conf
 
 /usr/bin/bashclub-zsync -d -c /etc/bashclub/$SOURCEHOST.conf
 
+# checkzfs Part
 CHECKZFS=$(which checkzfs)
 
 # So one Day has 1440 Minutes, so we go condition Yellow on 1500
+echo "Running checkzfs via $SOURCEHOSTNAME and this Miyagi Server"
 $CHECKZFS --source $SOURCEHOST --replicafilter "$ZFSTRGT/" --filter "#$ZFSROOT/|#$ZFSSECOND/" --threshold 1500,2000 --output checkmk --prefix pull-$(hostname):$ZPUSHTAG> /tmp/cmk_tmp.out && ( echo "<<<local>>>" ; cat /tmp/cmk_tmp.out ) > /tmp/90000_checkzfs
 
+echo "Copying checkzfs Results to $SOURCEHOSTNAME"
 scp /tmp/90000_checkzfs $SOURCEHOST:/var/lib/check_mk_agent/spool/90000_checkzfs_$(hostname)_$ZPOOLSRC
 
-echo "Don´t forget to add a Host in CMK named: miyagi-$SOURCEHOSTNAME-$(hostname) without Agent, Piggyback enabled!"
-echo "<<<<miyagi-$SOURCEHOSTNAME-$(hostname)>>>>" > 90000_miyagi-$SOURCEHOSTNAME-$(hostname)
-/usr/bin/check_mk_agent >> 90000_miyagi-$SOURCEHOSTNAME-$(hostname)
-echo "<<<<>>>>" >> 90000_miyagi-$SOURCEHOSTNAME-$(hostname)
-scp  ./90000_miyagi-$SOURCEHOSTNAME-$(hostname)  $SOURCEHOST:/var/lib/check_mk_agent/spool
-
+# Updating Miyagi Host to latest Proxmox VE (no major Version Upgrades!)
 if [[ "$UPDATES" == "yes" ]]
 then
 	apt update && apt dist-upgrade -y
+	apt autopurge
  else
- 	echo no Updates configured - Consider updating more often!
+ 	echo "No Updates configured - Consider updating more often!"
 
 fi
 
+# Creating and moving Piggyback data to Sourcehost for soon shut down Miyagi Server
+if [[ "$SHUTDOWN" == "yes" ]]
+then
 
-if [[ "$BACKUPSERVER" == "no" ]]
-then 
-echo No Backup configured in this Run
-exit
+	echo "Don´t forget to add a Host in CMK named: miyagi-$SOURCEHOSTNAME-$(hostname) without Agent, Piggyback enabled!"
+	echo "<<<<miyagi-$SOURCEHOSTNAME-$(hostname)>>>>" > 90000_miyagi-$SOURCEHOSTNAME-$(hostname)
+	/usr/bin/check_mk_agent >> 90000_miyagi-$SOURCEHOSTNAME-$(hostname)
+	echo "<<<<>>>>" >> 90000_miyagi-$SOURCEHOSTNAME-$(hostname)
+	scp  ./90000_miyagi-$SOURCEHOSTNAME-$(hostname)  $SOURCEHOST:/var/lib/check_mk_agent/spool
+	
+ else
+	echo "No Shutdown configured, so we don´t do any Piggyback Data"
+fi
+
+
+if [[ "$BACKUPSERVER" == "no" ]]; then 
+      echo No Backup configured in this Run
+      [[ "$SHUTDOWN" == "yes" ]] && shutdown
+fi
+
+
+if [[ "$BACKUPSERVER" == "no" ]]; then
+      echo No Backup configured in this Run
+      [[ "$SHUTDOWN" == "yes" ]] && exit
 fi
 
 PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
