@@ -1,7 +1,8 @@
 #!/bin/bash
+PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 
 echo "Sleeping for one Minute to be interruped if necessary"
-sleep 60
+echo sleep 60
 
 #Requirements for Myiagi ultimate Backup found in README! Always use a Config File!
 
@@ -136,7 +137,6 @@ then
  	echo no Updates configured - Consider updating more often!
 
 fi
-
 
 if [[ "$SHUTDOWN" == "yes" ]]
 then
