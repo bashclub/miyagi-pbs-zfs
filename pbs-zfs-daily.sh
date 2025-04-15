@@ -35,18 +35,18 @@ echo "snapshot_filter=$ZPUSHFILTER" >> /etc/bashclub/$SOURCEHOST.conf
 echo "min_keep=$ZPUSHMINKEEP" >> /etc/bashclub/$SOURCEHOST.conf
 echo "zfs_auto_snapshot_keep=$ZPUSHKEEP" >> /etc/bashclub/$SOURCEHOST.conf
 echo "zfs_auto_snapshot_label=$ZPUSHLABEL" >> /etc/bashclub/$SOURCEHOST.conf
+echo "zfs_auto_snapshot_engine=internal"  >> /etc/bashclub/$SOURCEHOST.conf
+echo "checkzfs_disabled=0" >> /etc/bashclub/$SOURCEHOST.conf
+echo "checkzfs_local=0" >> /etc/bashclub/$SOURCEHOST.conf
+echo "checkzfs_prefix=miyagi-$SOURCEHOSTNAME-$HOSTNAME" >> /etc/bashclub/$SOURCEHOST.conf
+echo "checkzfs_max_age=1500,2000" >> /etc/bashclub/$SOURCEHOST.conf
+echo "checkzfs_max_snapshot_count=180,200" >> /etc/bashclub/$SOURCEHOST.conf
+echo "checkzfs_spool=1" >> /etc/bashclub/$SOURCEHOST.conf
+echo "checkzfs_spool_maxage=90000" >> /etc/bashclub/$SOURCEHOST.conf
+
 
 /usr/bin/bashclub-zsync -d -c /etc/bashclub/$SOURCEHOST.conf
 
-# checkzfs Part
-CHECKZFS=$(which checkzfs)
-
-# So one Day has 1440 Minutes, so we go condition Yellow on 1500
-echo "Running checkzfs via $SOURCEHOSTNAME and this Miyagi Server"
-$CHECKZFS --source $SOURCEHOST --replicafilter "$ZFSTRGT/" --filter "#$ZFSROOT/|#$ZFSSECOND/" --threshold 1500,2000 --output checkmk --prefix pull-$(hostname):$ZPUSHTAG> /tmp/cmk_tmp.out && ( echo "<<<local>>>" ; cat /tmp/cmk_tmp.out ) > /tmp/90000_checkzfs
-
-echo "Copying checkzfs Results to $SOURCEHOSTNAME"
-scp /tmp/90000_checkzfs $SOURCEHOST:/var/lib/check_mk_agent/spool/90000_checkzfs_$(hostname)_$ZPOOLSRC
 
 # Updating Miyagi Host to latest Proxmox VE (no major Version Upgrades!)
 if [[ "$UPDATES" == "yes" ]]
