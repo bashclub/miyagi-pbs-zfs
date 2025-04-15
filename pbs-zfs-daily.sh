@@ -52,7 +52,7 @@ echo "checkzfs_spool_maxage=90000" >> /etc/bashclub/$SOURCEHOST.conf
 if [[ "$UPDATES" == "yes" ]]
 then
 	apt update && apt dist-upgrade -y
-	apt autopurge
+	apt autopurge -y
  else
  	echo "No Updates configured - Consider updating more often!"
 
