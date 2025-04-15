@@ -68,3 +68,43 @@ TURNING OFF THE MACHINE!!!
 Test Targets Tank if less than 75% free, otherwise report to Check_MK
 Test Disks after PBS Maintenance, before shutdown with SmartCTL Short Test and report to Check_MK
 Support multiple Sources
+
+So how do you get back to Business, if your Source fails
+
+Option A
+
+Assign a new Proxmox Machine to your Proxmox Backup Server and restore all necessary VMs and Containers
+
+Option B
+
+Use your Miyagi System to get live
+
+1.  Rename your Datasets
+    
+    zfs create rpool/data/pveold
+    zfs rename rpool/repl/pveold/data rpool/data/pveold/data
+
+2. Create a new PVE Datastore
+
+   Type ZFS
+   Name rpool-data-pveold-data ZFS-POOL: rpool/data/pveold/data Content: Disk Image, Container
+   Check if your Disks show up in the new Datastore
+
+3. Copy Configs (Please verify VMID from PBS ist not on Source System
+
+   cp rpool/data/pveold/PMconf/etc/pve/nodes/pveold/qemu-server /etc/pve/qemu-server
+   cp rpool/data/pveold/PMconf/etc/pve/nodes/pveold/lxc /etc/pve/lxc
+
+4. Rename Datastore Names in new Configs
+
+   cd /etc/pve/qemu-server
+   sed -i 's/local-zfs:/rpool-data-pveold-data/g' *.conf
+
+   cd /etc/pve/lxc
+   sed -i 's/local-zfs:/rpool-data-pveold-data/g' *.conf
+
+5. Optional repeat this Steps for a Second ZFS Pool and be aware of duplicate Names
+6. Start your VMs
+7. optional: run our Postinstaller
+
+
