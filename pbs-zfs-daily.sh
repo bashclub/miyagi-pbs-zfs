@@ -24,7 +24,13 @@ echo "Configuring and runnging bashclub-zsyncs Config in /etc/bashclub/$SOURCEHO
 SOURCEHOSTNAME=$(ssh $SOURCEHOST hostname)
 
 ssh root@$SOURCEHOST zfs set $ZPUSHTAG=all $ZFSROOT
-ssh root@$SOURCEHOST zfs set $ZPUSHTAG=all $ZFSSECOND
+if [ -n "$ZFSSECOND" ]; then
+    ssh root@"$SOURCEHOST" "zfs set $ZPUSHTAG=all $ZFSSECOND"
+else
+    echo "ZFSSECOND is not specified, not tagging on Source"
+fi
+
+
 ssh root@$SOURCEHOST zfs set $ZPUSHTAG=all rpool/pveconf #you have to use our postinstaller on source
 
 echo "target=$ZFSTRGT" > /etc/bashclub/$SOURCEHOST.conf
@@ -44,8 +50,13 @@ echo "checkzfs_max_snapshot_count=180,200" >> /etc/bashclub/$SOURCEHOST.conf
 echo "checkzfs_spool=1" >> /etc/bashclub/$SOURCEHOST.conf
 echo "checkzfs_spool_maxage=90000" >> /etc/bashclub/$SOURCEHOST.conf
 
-
-/usr/bin/bashclub-zsync -c /etc/bashclub/$SOURCEHOST.conf
+if [[ "$ZSYNC" == "no" ]]
+ then
+	echo "Bashclub-Zsync has been disabled in Config"
+ 
+ else
+	/usr/bin/bashclub-zsync -c /etc/bashclub/$SOURCEHOST.conf
+fi
 
 
 # Updating Miyagi Host to latest Proxmox VE (no major Version Upgrades!)
@@ -81,7 +92,7 @@ fi
 sleep 5
 
 if [[ "$BACKUPSERVER" == "yes" ]]; then
-      echo No Backup configured in this Run
+      echo Backup configured in this Run, so here we go.
 fi
 
 PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
@@ -106,7 +117,7 @@ fi
 
 ### one Day is 86400 Seconds, so we going Condition grey if no new Status File will be pushed
 
-ssh root@$SOURCEHOST vzdump --node $SOURCEHOSTNAME --storage $BACKUPSTORE --exclude  $BACKUPEXCLUDE --mode snapshot --all 1 --notes-template '{{guestname}}' --pbs-change-detection-mode metadata
+ssh root@$SOURCEHOST vzdump --pbs-change-detection-mode metadata --node $SOURCEHOSTNAME --storage $BACKUPSTORE --exclude  $BACKUPEXCLUDE --mode snapshot --all 1 --notes-template '{{guestname}}'
 
 if [ $? -eq 0 ]; then
     echo command returned 0 is good
