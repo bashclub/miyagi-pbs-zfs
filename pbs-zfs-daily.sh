@@ -106,7 +106,7 @@ fi
 
 ### one Day is 86400 Seconds, so we going Condition grey if no new Status File will be pushed
 
-ssh root@$SOURCEHOST vzdump --node $SOURCEHOSTNAME --storage $BACKUPSTORE --exclude  $BACKUPEXCLUDE --mode snapshot --all 1 --notes-template '{{guestname}}'
+ssh root@$SOURCEHOST vzdump --node $SOURCEHOSTNAME --storage $BACKUPSTORE --exclude  $BACKUPEXCLUDE --mode snapshot --all 1 --notes-template '{{guestname}}' --pbs-change-detection-mode metadata
 
 if [ $? -eq 0 ]; then
     echo command returned 0 is good
