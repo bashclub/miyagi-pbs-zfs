@@ -45,7 +45,7 @@ echo "checkzfs_spool=1" >> /etc/bashclub/$SOURCEHOST.conf
 echo "checkzfs_spool_maxage=90000" >> /etc/bashclub/$SOURCEHOST.conf
 
 
-/usr/bin/bashclub-zsync -d -c /etc/bashclub/$SOURCEHOST.conf
+/usr/bin/bashclub-zsync -c /etc/bashclub/$SOURCEHOST.conf
 
 
 # Updating Miyagi Host to latest Proxmox VE (no major Version Upgrades!)
@@ -74,14 +74,14 @@ fi
 
 
 if [[ "$BACKUPSERVER" == "no" ]]; then 
-      echo No Backup configured in this Run
-      [[ "$SHUTDOWN" == "yes" ]] && shutdown
+      echo No Backup configured in this Run && exit
+      [[ "$SHUTDOWN" == "yes" ]] && shutdown now
 fi
 
+sleep 5
 
-if [[ "$BACKUPSERVER" == "no" ]]; then
+if [[ "$BACKUPSERVER" == "yes" ]]; then
       echo No Backup configured in this Run
-      [[ "$SHUTDOWN" == "no" ]] && exit
 fi
 
 PRUNEJOB=$(ssh $PBSHOST proxmox-backup-manager prune-job list --output-format json-pretty | grep -m 1 "id" | cut -d'"' -f4)
