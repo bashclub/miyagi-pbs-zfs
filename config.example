@@ -18,6 +18,7 @@ ZPOOLSRC=rpool #First Pool/Tank from Proxmox VE System to be backuped and replic
 ZPOOLDST=rpool #This pulling Machines Pool/Tank
 
 #ZSYNC
+ZSYNC=yes #set to no for Backup with PBS only
 ZPUSHTAG=bashclub:zsync-198-ssd #ZFS User parameter will be set on ZFSROOT and ZFSSECOND to select.
 ZPUSHMINKEEP=3 #Keep min x Snapshots on all Source Datasets to resume Replication
 ZPUSHKEEP=14 #Number of Snapshots with ZPUSHLABEL
