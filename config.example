@@ -2,6 +2,7 @@
 
 SSHPORT='22' #SSH Port, usually default 22 internally
 BACKUPSERVER=no #use yes for triggering Proxmox Backup to Store
+ZSYNC=yes #skip Replication with no
 MAINTDAY=7 #1 Monday to 7 Sunday, dont start your System too late
 SHUTDOWN=no #No be there anymore
 UPDATES=yes #Do PVE and PBS Updates after run
