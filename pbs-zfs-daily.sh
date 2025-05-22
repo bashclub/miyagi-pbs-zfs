@@ -2,7 +2,7 @@
 PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin"
 
 echo "Sleeping for one Minute to be interruped if necessary"
-echo sleep 60
+sleep 60
 
 #Requirements for Myiagi ultimate Backup found in README! Always use a Config File!
 
@@ -85,9 +85,16 @@ fi
 
 
 if [[ "$BACKUPSERVER" == "no" ]]; then 
-      echo No Backup configured in this Run && exit
-      [[ "$SHUTDOWN" == "yes" ]] && shutdown now
+    echo "No Backup configured in this Run"
+    if [[ "$SHUTDOWN" == "yes" ]]; then
+        echo "Shutting down now..."
+        shutdown now
+    else
+        echo "Shutdown not configured. Exiting script."
+    fi
+    exit 0
 fi
+
 
 sleep 5
 
